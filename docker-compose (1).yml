@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  jerry-game:
+    build: .
+    volumes:
+      - ./src:/app/src  # Mount source code for development
+      - /tmp/.X11-unix:/tmp/.X11-unix  # Share X11 socket
+    ports:
+      - "8000:8000"  # Expose port for the game UI
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=:99
+      - SDL_VIDEODRIVER=x11
+      - SDL_AUDIODRIVER=dummy
+    init: true  # Proper signal handling
+    restart: unless-stopped
+    ipc: host  # Required for X11 sharing
+    healthcheck:
+      test: ["CMD-SHELL", "pidof python || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
